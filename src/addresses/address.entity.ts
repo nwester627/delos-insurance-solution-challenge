@@ -5,8 +5,9 @@ export class Address extends Model {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
-  address: string;
+  declare address: string;
 
   @Column(DataType.FLOAT)
   latitude: number;

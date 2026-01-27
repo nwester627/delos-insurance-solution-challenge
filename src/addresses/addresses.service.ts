@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
@@ -7,6 +7,8 @@ import { Address } from './address.entity';
 
 @Injectable()
 export class AddressesService {
+  private readonly logger = new Logger(AddressesService.name);
+
   constructor(
     @InjectModel(Address)
     private addressModel: typeof Address,
@@ -15,19 +17,46 @@ export class AddressesService {
   ) {}
 
   async create(addressStr: string) {
-    // 1. Get Geocoding Data from Google
-    const geoData = await this.getGeocoding(addressStr);
+    try {
+      this.logger.log(`Starting processing for: ${addressStr}`);
 
-    // 2. Placeholder for NASA Wildfire Data
-    const wildfireInfo = await this.getWildFireData(geoData.lat, geoData.lng);
+      // 1. Get Geocoding Data
+      const geoData = await this.getGeocoding(addressStr);
 
-    // 3. Save everything to the database
-    return this.addressModel.create({
-      address: geoData.formattedAddress,
-      latitude: geoData.lat,
-      longitude: geoData.lng,
-      wildfireData: wildfireInfo,
-    });
+      // 2. Get NASA Wildfire Data
+      const wildfireInfo = await this.getWildFireData(geoData.lat, geoData.lng);
+
+      // 3. UPSERT Logic: Find by formatted address or create new
+      // This prevents duplicates based on the "Official" address from Google
+      const [record, created] = await this.addressModel.upsert({
+        address: geoData.formattedAddress, // Use the cleaned address from Google as the key
+        latitude: geoData.lat,
+        longitude: geoData.lng,
+        wildfireData: wildfireInfo,
+      });
+
+      this.logger.log(
+        created
+          ? `New record created: ${record.id}`
+          : `Existing record updated: ${record.id}`,
+      );
+      return record;
+    } catch (error) {
+      this.logger.error(
+        `Failed to process address: ${addressStr}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async findOne(id: number) {
+    const address = await this.addressModel.findByPk(id);
+    if (!address) {
+      this.logger.warn(`Search failed: Address with ID ${id} not found`);
+      throw new HttpException('Address not found', HttpStatus.NOT_FOUND);
+    }
+    return address;
   }
 
   private async getGeocoding(address: string) {
