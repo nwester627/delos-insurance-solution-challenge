@@ -26,7 +26,7 @@ export class AddressesService {
       // 2. Get NASA Wildfire Data
       const wildfireInfo = await this.getWildFireData(geoData.lat, geoData.lng);
 
-      // 3. UPSERT Logic: Find by formatted address or create new
+      // 3. Find by formatted address or create new
       // This prevents duplicates based on the "Official" address from Google
       const [record, created] = await this.addressModel.upsert({
         address: geoData.formattedAddress, // Use the cleaned address from Google as the key
@@ -112,7 +112,24 @@ export class AddressesService {
     }
   }
 
-  async findAll() {
-    return this.addressModel.findAll();
+  async findAll(page: number, limit: number) {
+    const offset = (page - 1) * limit;
+
+    const { rows, count } = await this.addressModel.findAndCountAll({
+      attributes: ['id', 'address', 'latitude', 'longitude'], // Keeping the summary view
+      limit: limit,
+      offset: offset,
+      order: [['createdAt', 'DESC']], // Show newest first
+    });
+
+    return {
+      data: rows,
+      meta: {
+        totalItems: count,
+        itemsPerPage: limit,
+        currentPage: page,
+        totalPages: Math.ceil(count / limit),
+      },
+    };
   }
 }

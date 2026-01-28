@@ -22,7 +22,7 @@ import { Address } from './addresses/address.entity';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         autoLoadModels: true,
-        synchronize: true, // Auto-creates tables (turn off in real production!)
+        synchronize: true, // Auto-creates tables (would not use in production!)
         models: [Address],
       }),
     }),

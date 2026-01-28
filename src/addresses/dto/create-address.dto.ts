@@ -1,8 +1,12 @@
-import { IsString, IsNotEmpty, MinLength } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateAddressDto {
+  @ApiProperty({
+    description: 'The physical address to assess',
+    example: '1600 Amphitheatre Parkway, Mountain View, CA',
+  })
   @IsString()
-  @IsNotEmpty({ message: 'Address is required' })
-  @MinLength(5, { message: 'Address is too short' })
+  @IsNotEmpty()
   address: string;
 }

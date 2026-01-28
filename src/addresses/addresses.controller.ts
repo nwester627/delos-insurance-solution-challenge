@@ -1,4 +1,12 @@
-import { Controller, Post, Get, Body, Param, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  Logger,
+  Query,
+} from '@nestjs/common';
 import { AddressesService } from './addresses.service';
 import { CreateAddressDto } from './dto/create-address.dto'; // Import this
 
@@ -10,23 +18,17 @@ export class AddressesController {
 
   @Post()
   async create(@Body() createAddressDto: CreateAddressDto) {
-    // Use DTO here
     this.logger.log(`Received request for: ${createAddressDto.address}`);
     return this.addressesService.create(createAddressDto.address);
   }
 
   @Get()
-  async findAll() {
-    this.logger.log('Retrieving all stored addresses (summary view)');
-    const addresses = await this.addressesService.findAll();
-
-    // Spec refinement: Return only id, address, lat, lng for the list view
-    return addresses.map((addr) => ({
-      id: addr.id,
-      address: addr.address,
-      latitude: addr.latitude,
-      longitude: addr.longitude,
-    }));
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10, //bonus: pagination implementation
+  ) {
+    this.logger.log(`Fetching page ${page} with limit ${limit}`);
+    return this.addressesService.findAll(Number(page), Number(limit));
   }
 
   @Get(':id')
