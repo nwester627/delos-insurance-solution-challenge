@@ -26,8 +26,8 @@ The project requires a PostgreSQL database. A Docker Compose configuration is pr
 - DB_PASSWORD=postgres123
 - DB_NAME=wildfire_db
 
-- GOOGLE_GEOCODING_API_KEY= `available upon request`
-- NASA_FIRMS_API_KEY= `available upon request`
+- GOOGLE_GEOCODING_API_KEY= `YOUR_API_KEY`
+- NASA_FIRMS_API_KEY= `YOUR_API_KEY`
 
 3. **Install and Run:**
    npm install
