@@ -20,14 +20,14 @@ The project requires a PostgreSQL database. A Docker Compose configuration is pr
 
 2. **Environment Variables: Create a .env file in the root directory. Use the following structure:**
 
-DB_HOST=localhost
-DB_PORT=5434
-DB_USERNAME=postgres
-DB_PASSWORD=postgres123
-DB_NAME=wildfire_db
+- DB_HOST=localhost
+- DB_PORT=5434
+- DB_USERNAME=postgres
+- DB_PASSWORD=postgres123
+- DB_NAME=wildfire_db
 
-GOOGLE_GEOCODING_API_KEY=your_key_here
-NASA_FIRMS_API_KEY=your_key_here
+- GOOGLE_GEOCODING_API_KEY= `available upon request`
+- NASA_FIRMS_API_KEY= `available upon request`
 
 3. **Install and Run:**
    npm install
